@@ -92,6 +92,7 @@ export default class BetterLock extends Plugin {
 			const isFocused = canvas.wrapperEl?.querySelector(".canvas-node.is-focused");
 			canvas.onTouchdown = isFocused && canvas.readonly ? reset : Object.getPrototypeOf(canvas).onTouchdown;
 			canvas.isDragging = isFocused && canvas.readonly ? false : true;
+			this.logs(undefined, canvas.isDragging, canvas.readonly, isFocused, canvas.onTouchdown);
 		}
 		return;
 	}
@@ -124,6 +125,19 @@ export default class BetterLock extends Plugin {
 	betterLock(leaf: WorkspaceLeaf) {
 		//@ts-ignore
 		const canvas = leaf.view.canvas;
+		canvas.wrapperEl.addEventListener("click", () => {
+			if (canvas.readonly) {
+				this.logs(undefined, "Readonly click");
+				const isFocused = canvas.wrapperEl?.querySelector(".canvas-node.is-focused");
+				canvas.onTouchdown = isFocused && canvas.readonly ? () => {return;} : Object.getPrototypeOf(canvas).onTouchdown;
+				canvas.isDragging = isFocused && canvas.readonly ? false : true;
+			} else {
+				//restore
+				this.logs(undefined, "Readwrite click, restoring default behavior");
+				canvas.onTouchdown = Object.getPrototypeOf(canvas).onTouchdown;
+				canvas.isDragging = false;
+			}
+		});
 		try {
 			return around(canvas, {
 				setReadonly: (oldMethod) => {
@@ -143,10 +157,13 @@ export default class BetterLock extends Plugin {
 					};
 				}
 			});
+			
 		} catch (e) {
 			this.logs(true, e);
 		}
 	}
+
+
 
 	async onload() {
 		console.log(
