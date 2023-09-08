@@ -89,9 +89,11 @@ export default class BetterLock extends Plugin {
 
 		}
 		if (this.settings.scroll){
-			canvas.onTouchdown = reset;
-			canvas.isDragging = canvas.wrapperEl?.querySelector(".canvas-node.is-focused") && canvas.readonly ? false : true;
+			const isFocused = canvas.wrapperEl?.querySelector(".canvas-node.is-focused");
+			canvas.onTouchdown = isFocused && canvas.readonly ? reset : Object.getPrototypeOf(canvas).onTouchdown;
+			canvas.isDragging = isFocused && canvas.readonly ? false : true;
 		}
+		return;
 	}
 
 	enableFunction(leaf: WorkspaceLeaf) {
