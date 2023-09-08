@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf } from "obsidian";
+import { Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { around } from "monkey-around";
 import { BetterLockSettings, DEFAULT_SETTINGS } from "./interface";
 import { BetterLockSettingsTab } from "./settings";
@@ -19,7 +19,10 @@ export default class BetterLock extends Plugin {
 			callFunction = callFunction ? callFunction : "main";
 			callFunction = callFunction.contains("eval") ? "main" : callFunction;
 			if (error) {
-				console.error(`[${this.manifestName()}] [${callFunction}]`, ...message);
+				if (!Platform.isDesktop)
+					console.error(`[${this.manifestName()}] [${callFunction}]`, ...message);
+				else
+					console.log(`[${this.manifestName()}] [${callFunction}]`, ...message);
 			} else {
 				console.log(`[${this.manifestName()}] [${callFunction}]`, ...message);
 			}
